@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Timer</title>
+</head>
+<style>
+    body {
+        background-color: black;
+        color: #fff;
+    }
+</style>
+
+<body>
+    <div id="timer1"></div>
+
+    <script>
+        //Положу джавучкрипту внутри что бы меньше файликов тягать
+        //конструктор таймера
+        class myTimer {
+            constructor() {
+                    this.startMin = 0;
+                    this.startSec = 0;
+                    this.autoStart = false;
+                    this.countTime = true;
+                }
+                // сеттер
+            set fullTime(timeStr) {
+                let splitTime = timeStr.split(':');
+                this.startMin = parseInt(splitTime[0]);
+                let checkSec = parseInt(splitTime[1]);
+                if (checkSec > 59 || checkSec < 0)
+                    this.startSec = 59;
+                else
+                    this.startSec = checkSec;
+            }
+            set _autoStart(autoStart) {
+                this.autoStart = autoStart;
+            }
+
+            get showStatus() {
+                /*console.log(this.startMin);
+                console.log(this.startSec);
+                console.log(this.autoStart);*/
+                return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}`;
+            }
+
+            countDown() {
+                console.log("countDown " + this.startMin + typeof(this.startMin));
+                console.log("countDown " + this.startSec);
+                console.log("countDown " + this.autoStart);
+                let min = this.startMin;
+                let sec = this.startSec;
+                if (min > 0 || sec > 0) {
+                    console.log("yehhh babby!!!");
+                    sec--;
+                    this.fullTime = min + ":" + sec;
+                    console.log(min + ":" + sec);
+
+                } else return;
+            }
+        }
+        //создаем экземпляры
+        let firstTimer = new myTimer();
+        firstTimer.fullTime = "10:30";
+        firstTimer.autoStart = true;
+        console.log(firstTimer.showStatus);
+        //доступ к дивке где выводится таймер
+        let divTimer = document.getElementById("timer1");
+        divTimer.innerText = firstTimer.showStatus;
+        firstTimer.countDown();
+        firstTimer.countDown();
+    </script>
+
+</body>
+
+</html>
