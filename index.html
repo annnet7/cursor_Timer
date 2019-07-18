@@ -16,9 +16,9 @@
 
 <body>
     <div id="timer1"></div>
-
+    <button id="stop">Stop!</button>
     <script>
-        //Положу джавучкрипту внутри что бы меньше файликов тягать
+        //Положу джавуcкрипту внутри что бы меньше файликов тягать
         //конструктор таймера
         class myTimer {
             constructor() {
@@ -26,6 +26,7 @@
                     this.startSec = 0;
                     this.autoStart = false;
                     this.countTime = true;
+                    this.countInterval;
                 }
                 // сеттер
             set fullTime(timeStr) {
@@ -42,37 +43,44 @@
             }
 
             get showStatus() {
-                /*console.log(this.startMin);
-                console.log(this.startSec);
-                console.log(this.autoStart);*/
                 return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}`;
             }
 
-            countDown() {
-                console.log("countDown " + this.startMin + typeof(this.startMin));
-                console.log("countDown " + this.startSec);
-                console.log("countDown " + this.autoStart);
+            countDown(textContainer) {
+
                 let min = this.startMin;
                 let sec = this.startSec;
-                if (min > 0 || sec > 0) {
-                    console.log("yehhh babby!!!");
-                    sec--;
-                    this.fullTime = min + ":" + sec;
-                    console.log(min + ":" + sec);
+                this.countInterval = setInterval(function() {
+                    if (min > 0 || sec > 0) {
+                        if (sec == 0) {
+                            min--;
+                            sec = 59;
+                        } else sec--;
+                        this.fullTime = min + ":" + sec;
+                        console.log(min + ":" + sec);
+                        //вывели текст...
+                        textContainer.innerText = min + ":" + sec;
 
-                } else return;
+                    } else clearInterval(this.countInterval);
+                }, 1000);
+                return;
+            }
+            stopCount(myTimer) {
+                clearInterval(myTimer.countInterval);
             }
         }
         //создаем экземпляры
         let firstTimer = new myTimer();
-        firstTimer.fullTime = "10:30";
+        firstTimer.fullTime = "1:05";
         firstTimer.autoStart = true;
         console.log(firstTimer.showStatus);
         //доступ к дивке где выводится таймер
         let divTimer = document.getElementById("timer1");
-        divTimer.innerText = firstTimer.showStatus;
-        firstTimer.countDown();
-        firstTimer.countDown();
+        let stopBtn = document.getElementById("stop");
+        stopBtn.addEventListener("click", function() {
+            firstTimer.stopCount(firstTimer);
+        });
+        firstTimer.countDown(divTimer);
     </script>
 
 </body>
