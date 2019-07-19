@@ -15,21 +15,25 @@
 </style>
 
 <body>
-    <div id="timer1"></div>
-    <button id="stop">Stop!</button>
+    <div id="timer1">00:00</div>
+    <button id="timerBtn">Start</button>
+    <div id="timer2">00:00</div>
+    <button id="timerBtn2">Start</button>
     <script>
         //Положу джавуcкрипту внутри что бы меньше файликов тягать
-        //конструктор таймера
+
+        //////////////////////////////////////
+        //////////////////////////////////////
+
+        //таймер
         class myTimer {
             constructor() {
                     this.startMin = 0;
                     this.startSec = 0;
                     this.autoStart = false;
-                    this.countTime = true;
-                    this.countInterval;
                 }
-                // сеттер
-            set fullTime(timeStr) {
+                // сеттеры для того что бы можно было достучаться до параметров
+            set setFullTime(timeStr) {
                 let splitTime = timeStr.split(':');
                 this.startMin = parseInt(splitTime[0]);
                 let checkSec = parseInt(splitTime[1]);
@@ -38,49 +42,95 @@
                 else
                     this.startSec = checkSec;
             }
-            set _autoStart(autoStart) {
-                this.autoStart = autoStart;
-            }
-
+            set setAutoStart(_autoStart) {
+                    this.autoStart = _autoStart;
+                }
+                //самый главный сеттер задаем все параметры разом
+            set setAllParams(params) {
+                    this.setFullTime = params[0];
+                    this.setAutoStart = params[1];
+                    this.setDiv = params[2];
+                    params[2].innerText = params[0];
+                    //т.к. дивка записывается после отработки сеттера то автостарт не отрабатывал не видел дивку, а  если ее передать параметром то все ок
+                    if (params[1]) {
+                        this.countDown(params[2]);
+                    }
+                }
+                //удобная фигулина для отладки
             get showStatus() {
-                return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}`;
-            }
+                    return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}, contain in : ${this.divTimerContainer}`;
+                }
+                //методы
+                //начинаем отсчет            
+            countDown(divContainer) {
 
-            countDown(textContainer) {
+                    let min = this.startMin;
+                    let sec = this.startSec;
+                    let obj = this; // потому что в интервале this = window
+                    this.countInterval = setInterval(function() {
+                        if (min > 0 || sec > 0) {
+                            if (sec == 0) {
+                                min--;
+                                sec = 59;
+                            } else sec--;
+                            divContainer.innerText = min + ":" + sec;
+                            obj.startMin = min;
+                            obj.startSec = sec;
 
-                let min = this.startMin;
-                let sec = this.startSec;
-                this.countInterval = setInterval(function() {
-                    if (min > 0 || sec > 0) {
-                        if (sec == 0) {
-                            min--;
-                            sec = 59;
-                        } else sec--;
-                        this.fullTime = min + ":" + sec;
-                        console.log(min + ":" + sec);
-                        //вывели текст...
-                        textContainer.innerText = min + ":" + sec;
 
-                    } else clearInterval(this.countInterval);
-                }, 1000);
-                return;
-            }
-            stopCount(myTimer) {
-                clearInterval(myTimer.countInterval);
+                        } else clearInterval(this.countInterval);
+                    }, 1000);
+
+
+                    return;
+                }
+                //останавливаем отсчет
+            stopCount() {
+                clearInterval(this.countInterval);
             }
         }
+
+        function btnControl(btnLink, timerLink, divLink) {
+            let startTimer = true;
+            if (timerLink.autoStart) {
+                startTimer = false;
+                btnLink.innerText = "autostart, wona Stop!";
+            }
+            btnLink.addEventListener("click", function() {
+                if (startTimer) {
+                    timerLink.countDown(divLink);
+                    btnLink.innerText = "Stop!";
+                    startTimer = false;
+                } else {
+                    timerLink.stopCount();
+                    btnLink.innerText = "Start :)";
+                    startTimer = true;
+                }
+            });
+        }
+
+
         //создаем экземпляры
         let firstTimer = new myTimer();
-        firstTimer.fullTime = "1:05";
-        firstTimer.autoStart = true;
-        console.log(firstTimer.showStatus);
         //доступ к дивке где выводится таймер
         let divTimer = document.getElementById("timer1");
-        let stopBtn = document.getElementById("stop");
-        stopBtn.addEventListener("click", function() {
-            firstTimer.stopCount(firstTimer);
-        });
-        firstTimer.countDown(divTimer);
+        //задаю параметры - время, автострат, дивка
+        firstTimer.setAllParams = ["1:10", true, divTimer];
+
+        //let toStop = true;
+        let firstBtn = document.getElementById("timerBtn");
+        btnControl(firstBtn, firstTimer, divTimer);
+
+        //создаем экземпляры
+        let secondTimer = new myTimer();
+        //доступ к дивке где выводится таймер
+        let divTimer2 = document.getElementById("timer2");
+        //задаю параметры - время, автострат, дивка
+        secondTimer.setAllParams = ["0:50", false, divTimer2];
+
+        //let toStop = true;
+        let secondBtn = document.getElementById("timerBtn2");
+        btnControl(secondBtn, secondTimer, divTimer2);
     </script>
 
 </body>
