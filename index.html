@@ -6,19 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Timer</title>
+
+    <!--CDN link for TweenMax-->
+    <script src='https://s0.2mdn.net/ads/studio/cached_libs/tweenmax_1.19.0_643d6911392a3398cb1607993edabfa7_min.js'></script>
+
 </head>
 <style>
     body {
         background-color: black;
         color: #fff;
     }
+    
+    div {
+        margin-top: 20px;
+    }
+    
+    #loadLine {
+        height: 30px;
+        background-color: #057863;
+        width: 600px;
+    }
 </style>
 
 <body>
     <div id="timer1">00:00</div>
     <button id="timerBtn">Start</button>
+    <div id="loadLine"></div>
     <div id="timer2">00:00</div>
     <button id="timerBtn2">Start</button>
+
+
     <script>
         //Положу джавуcкрипту внутри что бы меньше файликов тягать
 
@@ -58,7 +75,10 @@
                 }
                 //удобная фигулина для отладки
             get showStatus() {
-                    return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}, contain in : ${this.divTimerContainer}`;
+                return `${this.startMin}:${this.startSec}, Autostart:${this.autoStart}, contain in : ${this.divTimerContainer}`;
+            }
+            get getTimeInSec() {
+                    return this.startMin * 60 + this.startSec;
                 }
                 //методы
                 //начинаем отсчет            
@@ -73,7 +93,7 @@
                                 min--;
                                 sec = 59;
                             } else sec--;
-                            divContainer.innerText = min + ":" + sec;
+                            divContainer.innerText = (min < 10 ? ("0" + min) : min) + ":" + (sec < 10 ? ("0" + sec) : sec);
                             obj.startMin = min;
                             obj.startSec = sec;
 
@@ -90,7 +110,7 @@
             }
         }
 
-        function btnControl(btnLink, timerLink, divLink) {
+        function btnControl(btnLink, timerLink, divLink, timeLine = false) {
             let startTimer = true;
             if (timerLink.autoStart) {
                 startTimer = false;
@@ -101,13 +121,37 @@
                     timerLink.countDown(divLink);
                     btnLink.innerText = "Stop!";
                     startTimer = false;
+                    if (timeLine != false) timeLine.continueAnimation();
                 } else {
                     timerLink.stopCount();
                     btnLink.innerText = "Start :)";
                     startTimer = true;
+                    if (timeLine != false) timeLine.pauseAnimation();
                 }
             });
         }
+        //линия загрузки 
+        class LoadLineDiv {
+            constructor() {
+                this.tl = new TimelineMax({
+                    repeat: 0
+                });
+            }
+            startAnimation(divLoader, timeInSec) {
+                this.tl.to(divLoader, 70, {
+                    width: 0
+                }, 0.0);
+            }
+            continueAnimation() {
+                this.tl.play();
+            }
+            pauseAnimation() {
+                this.tl.pause();
+            }
+        }
+
+
+
 
 
         //создаем экземпляры
@@ -115,18 +159,23 @@
         //доступ к дивке где выводится таймер
         let divTimer = document.getElementById("timer1");
         //задаю параметры - время, автострат, дивка
-        firstTimer.setAllParams = ["1:10", true, divTimer];
+        let divLoader = document.getElementById("loadLine");
+        firstTimer.setAllParams = ["01:10", true, divTimer];
+        let timeLine1 = new LoadLineDiv();
 
-        //let toStop = true;
+        timeLine1.startAnimation(divLoader, firstTimer.getTimeInSec);
+
+
+
         let firstBtn = document.getElementById("timerBtn");
-        btnControl(firstBtn, firstTimer, divTimer);
+        btnControl(firstBtn, firstTimer, divTimer, timeLine1);
 
         //создаем экземпляры
         let secondTimer = new myTimer();
         //доступ к дивке где выводится таймер
         let divTimer2 = document.getElementById("timer2");
         //задаю параметры - время, автострат, дивка
-        secondTimer.setAllParams = ["0:50", false, divTimer2];
+        secondTimer.setAllParams = ["00:50", false, divTimer2];
 
         //let toStop = true;
         let secondBtn = document.getElementById("timerBtn2");
