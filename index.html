@@ -21,20 +21,25 @@
         margin-top: 20px;
     }
     
-    #loadLine {
+    .loadLine {
         height: 30px;
         background-color: #057863;
-        width: 600px;
+        width: 50%;
     }
 </style>
 
 <body>
-    <div id="timer1">00:00</div>
-    <button id="timerBtn">Start</button>
-    <div id="loadLine"></div>
-    <div id="timer2">00:00</div>
-    <button id="timerBtn2">Start</button>
+    <form>
+        <input type="number" name="minuts" id="inputMin" value="0" min="0" max="99">
+        <label>:</label>
+        <input type="number" name="seconds" id="inputSec" value="59" min="0" max="59">
+        <input type="checkbox" name="autostart" id="inputAutoStart">
+        <label>autostart</label>
+        <input type="button" value="Generate" id="generateBtn">
+    </form>
+    <div id="container">
 
+    </div>
 
     <script>
         //Положу джавуcкрипту внутри что бы меньше файликов тягать
@@ -132,10 +137,11 @@
         }
         //линия загрузки 
         class LoadLineDiv {
-            constructor() {
+            constructor(autoStart) {
                 this.tl = new TimelineMax({
                     repeat: 0
                 });
+                if (!autoStart) this.tl.pause();
             }
             startAnimation(divLoader, timeInSec) {
                 this.tl.to(divLoader, 70, {
@@ -151,35 +157,35 @@
         }
 
 
+        let genBtn = document.getElementById('generateBtn');
+        genBtn.addEventListener("click", function() {
+
+            console.log();
+            //получим время и автостарт
+            let timeFromInput = document.getElementById('inputMin').value + ":" + document.getElementById('inputSec').value;
+            let autoFromInput = document.getElementById('inputAutoStart').checked;
+            //
+            let divTimer = document.createElement('div');
+            divTimer.innerText = '00:00';
+            let btnTimer = document.createElement('button');
+            btnTimer.innerText = "Start :)";
+            let divLoad = document.createElement('div');
+            divLoad.className = "loadLine";
+
+            let timeContainer = document.getElementById('container');
+            timeContainer.appendChild(divTimer);
+            timeContainer.appendChild(btnTimer);
+            timeContainer.appendChild(divLoad);
 
 
+            let objTimer = new myTimer();
+            objTimer.setAllParams = [timeFromInput, autoFromInput, divTimer];
 
-        //создаем экземпляры
-        let firstTimer = new myTimer();
-        //доступ к дивке где выводится таймер
-        let divTimer = document.getElementById("timer1");
-        //задаю параметры - время, автострат, дивка
-        let divLoader = document.getElementById("loadLine");
-        firstTimer.setAllParams = ["01:10", true, divTimer];
-        let timeLine1 = new LoadLineDiv();
+            let objLoad = new LoadLineDiv(autoFromInput);
+            objLoad.startAnimation(divLoad, objTimer.getTimeInSec);
 
-        timeLine1.startAnimation(divLoader, firstTimer.getTimeInSec);
-
-
-
-        let firstBtn = document.getElementById("timerBtn");
-        btnControl(firstBtn, firstTimer, divTimer, timeLine1);
-
-        //создаем экземпляры
-        let secondTimer = new myTimer();
-        //доступ к дивке где выводится таймер
-        let divTimer2 = document.getElementById("timer2");
-        //задаю параметры - время, автострат, дивка
-        secondTimer.setAllParams = ["00:50", false, divTimer2];
-
-        //let toStop = true;
-        let secondBtn = document.getElementById("timerBtn2");
-        btnControl(secondBtn, secondTimer, divTimer2);
+            btnControl(btnTimer, objTimer, divTimer, objLoad);
+        });
     </script>
 
 </body>
